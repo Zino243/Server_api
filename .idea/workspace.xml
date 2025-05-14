@@ -5,21 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="228dedda-311f-4961-abc7-75e3f903e1b2" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/api/BaseModels.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api/Config.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api/Crud.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api/Data_massive_creator.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api/Database.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api/Main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api/Models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/DataControlService.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/connector.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/crud.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/database.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/main.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/BaseModels.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/BaseModels.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/Crud.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/Crud.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/DataControlService.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/DataControlService.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/Data_massive_creator.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/Data_massive_creator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/Main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/Models.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/Models.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,12 +42,13 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Python.Data_massive_creator.executor": "Run",
     "Python.connector.executor": "Run",
     "Python.data_massive_creator.executor": "Run",
     "Python.main.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "master",
+    "git-widget-placeholder": "develop__api",
     "settings.editor.selected.configurable": "preferences.keymap"
   }
 }]]></component>

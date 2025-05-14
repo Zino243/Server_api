@@ -41,4 +41,5 @@ class Cookie(BaseModel):
 
 class LlamadaTemporal(BaseModel):
     habitacion_id: int
-    cama_id: int
+    cama_id: str
+    hora: time

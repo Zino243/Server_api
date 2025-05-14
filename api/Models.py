@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, text, Time
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from .Database import Base
+from api.Database import Base
 
 
 class Enfermeros(Base):
@@ -32,10 +32,8 @@ class Dispositivos(Base):
 class Habitaciones(Base):
     __tablename__ = 'habitaciones'
 
-    # Autogenerado por la BBDD
-    id = Column(Integer, autoincrement=True, primary_key=True, index=True)
-
     # Datos necesarios
+    id = Column(Integer, primary_key=True, index=True)
     numero = Column(Integer, index=True)
 
 
@@ -48,6 +46,7 @@ class Camas(Base):
     # Datos necesarios
     letra = Column(String(50), index=True)
     habitacion_id = Column(ForeignKey('habitaciones.id'))
+    ip = Column(String(45), nullable=False) # IPv4 o IPv6
 
     # Relaciones
     habitacion = relationship("Habitaciones")
@@ -58,10 +57,10 @@ class Asistencias(Base):
 
     # Autogenerado por la BBDD
     id = Column(Integer, autoincrement=True, primary_key=True, index=True)
+    fecha = Column(Time, default=datetime.now().time)
 
     # Datos necesarios
-    fecha = Column(Date, server_default=text("CURRENT_DATE"))
-    hora = Column(Time, index=True)
+    hora = Column(Time, index=True) #deprecated i guess
 
     habitacion_id = Column(ForeignKey('habitaciones.id'), index=True)
     cama_id = Column(ForeignKey('camas.id'), index=True)
@@ -117,7 +116,9 @@ class LlamadasTemporales(Base):
     # Datos necesarios
     habitacion_id = Column(ForeignKey('habitaciones.id'), index=True)
     cama_id = Column(ForeignKey('camas.id'), index=True)
+    hora = Column(Time, default=datetime.now().time)
 
     # Relaciones
     habitacion = relationship("Habitaciones")
     cama = relationship("Camas")
+
