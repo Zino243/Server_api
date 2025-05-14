@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Control de Relé</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            padding: 40px;
+        }
+        .container {
+            background: #fff;
+            padding: 30px 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: auto;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+        .led-container {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+        }
+        .led-img {
+            width: 32px;
+            height: 32px;
+            margin-left: 10px;
+        }
+        button {
+            padding: 10px 18px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 4px;
+            background: #0078d7;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:last-child {
+            background: #28a745;
+        }
+        button:active {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <label for="ip">IP del relé:</label>
+        <input type="text" id="ip" placeholder="Ej: 192.168.1.100">
+
+        <label for="numero">Número de habitación:</label>
+        <input type="text" id="numero" placeholder="Ej: 101">
+
+        <label for="letra">Letra de la cama:</label>
+        <input type="text" id="letra" maxlength="1" placeholder="Ej: A">
+
+        <div class="led-container">
+            <label for="led">LED</label>
+            <input type="checkbox" id="led">
+            <img id="ledImg" class="led-img" src="https://i.imgur.com/7H3bF5F.png" alt="LED Off">
+        </div>
+
+        <button id="llamarBtn">Llamar</button>
+        <button id="presenciaBtn">Presencia</button>
+    </div>
+
+    <script>
+        // URLs de imágenes de LED
+        const ledOnImg = "https://i.imgur.com/7H3bF5F.png";   // Verde (encendido)
+        const ledOffImg = "https://i.imgur.com/2QbK6wC.png";  // Rojo (apagado)
+
+        const ledCheckbox = document.getElementById('led');
+        const ledImg = document.getElementById('ledImg');
+
+        // Cambia la imagen del LED según el checkbox
+        ledCheckbox.addEventListener('change', function() {
+            ledImg.src = ledCheckbox.checked ? ledOnImg : ledOffImg;
+            ledImg.alt = ledCheckbox.checked ? "LED On" : "LED Off";
+        });
+
+        // Inicializa el LED apagado
+        ledCheckbox.checked = false;
+        ledImg.src = ledOffImg;
+        ledImg.alt = "LED Off";
+
+        // Función para obtener valores y mostrar la URL
+        function getInputs() {
+            return {
+                ip: document.getElementById('ip').value.trim(),
+                numero: document.getElementById('numero').value.trim(),
+                letra: document.getElementById('letra').value.trim().toUpperCase()
+            };
+        }
+
+        document.getElementById('llamarBtn').addEventListener('click', function() {
+            const { ip, numero, letra } = getInputs();
+            if (!ip || !numero || !letra) {
+                alert("Por favor, completa todos los campos.");
+                return;
+            }
+            const url = `http://${ip}:8000/llamada/${numero}/${letra}`;
+            // alert(`Llamar: ${url}`);
+            fetch(url)
+            // Aquí puedes hacer una petición fetch si lo deseas
+            // fetch(url).then(...);
+        });
+
+        document.getElementById('presenciaBtn').addEventListener('click', function() {
+            const { ip, numero, letra } = getInputs();
+            if (!ip || !numero || !letra) {
+                alert("Por favor, completa todos los campos.");
+                return;
+            }
+            const url = `http://${ip}/${numero}/${letra}`;
+            alert(`Presencia: ${url}`);
+            // Aquí puedes hacer una petición fetch si lo deseas
+            // fetch(url).then(...);
+        });
+    </script>
+</body>
+</html>
