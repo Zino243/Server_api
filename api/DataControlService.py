@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 import requests
 from . import Crud
 
+url = "https://api.pushover.net/1/messages.json"
 
 def save_call_in_bbdd(numero_habitacion, letra_cama:str, db: Session):
 
@@ -14,7 +15,21 @@ def save_call_in_bbdd(numero_habitacion, letra_cama:str, db: Session):
                                     # hora autogenerada i guess#
                                     )
 
+def send_pushover(numero_habitacion, letra_cama):
+
+    requests.post(url, data= {
+        "token": "ankvim4u8c554keqni3h6f3oymms7a",
+        "user": "g6qd86iinmyd2i4gvrrtzgt9849aa5",
+        # "message": f"ve a la habitacion {numero_habitacion} cama {letra_cama}",
+        "message": "prueba",
+        "url" : f"http://192.168.0.21:8000/confirmar",
+        "url_title" : "confirmar",
+        # "url" : f"http://127.0.0.1:8000/atender_asistencia/{numero_habitacion}/{letra_cama}/cookie",
+    })
+
 def save_asistencias(db:Session, numero_habitacion, letra_cama, cookie):
+    """esto es atender asistencia"""
+
     habitacion_id = Crud.habitacionID(db = db, numero_habitacion = numero_habitacion)
     cama_id = Crud.camas_id(db=db, habitacion = habitacion_id, letra_cama= letra_cama)
     enfemero_id = Crud.id_for_cookie(db=db, cookie=cookie)
@@ -32,6 +47,7 @@ def send_led_on(db: Session, numero_habitacion: str, letra_cama: str) -> None:
         response.raise_for_status()
 
 def last_llamadas_temporales(db: Session):
+
     llamadas = Crud.last_llamadas_temporales(db)
     resultado = [
         {

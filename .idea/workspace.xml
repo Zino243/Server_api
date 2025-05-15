@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="228dedda-311f-4961-abc7-75e3f903e1b2" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/api/templates/enroll.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/Crud.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/Crud.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/DataControlService.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/DataControlService.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/Main.py" afterDir="false" />
     </list>
