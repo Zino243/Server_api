@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Llamadas Temporales</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2em; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background: #f4f4f4; }
+    </style>
+</head>
+<body>
+    <h1>Llamadas Temporales</h1>
+    <table id="llamadas-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>ID Habitación</th>
+                <th>ID Cama</th>
+                <th>Hora</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Los datos se insertarán aquí -->
+        </tbody>
+    </table>
+    <script>
+        fetch('http://127.0.0.1:8000/ultimas_asistencias')
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.querySelector('#llamadas-table tbody');
+                tbody.innerHTML = '';
+                data.forEach((llamada, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${llamada.habitacion_id}</td>
+                        <td>${llamada.cama_id}</td>
+                        <td>${llamada.hora}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            })
+            .catch(error => {
+                const tbody = document.querySelector('#llamadas-table tbody');
+                tbody.innerHTML = `<tr><td colspan="4">Error al cargar los datos</td></tr>`;
+                console.error('Error al cargar los datos:', error);
+            });
+    </script>
+</body>
+</html>

@@ -98,7 +98,17 @@ def habitacionID(db:Session, numero_habitacion):
         except Exception as e:
             return {"error", str(e)}
     return
+def habitacion_num(db:Session, habitacion_id:int):
+    '''return habitacion ID'''
+    query_habitaciones = db.query(Habitaciones)
 
+    if int(habitacion_id) is not None:
+        try:
+            habitacion = query_habitaciones.filter(Habitaciones.id == habitacion_id).first()
+            return habitacion.numero
+        except Exception as e:
+            return {"error", str(e)}
+    return
 
 def delete_habitaciones():
     return
@@ -114,7 +124,7 @@ def update_camas():
     return
 
 
-def read_camas(db: Session, habitacion:int = None, letra_cama: str = None,) -> int:
+def camas_id(db: Session, habitacion:int = None, letra_cama: str = None, ) -> int:
     query_camas = db.query(Camas)
 
     if letra_cama is not None or habitacion is not None:
@@ -131,6 +141,18 @@ def read_camas(db: Session, habitacion:int = None, letra_cama: str = None,) -> i
             return 0
     else:
         return 0
+
+def cama_letra(db:Session, cama_id:int) -> str:
+    query_camas = db.query(Camas)
+
+    if cama_id != 0:
+        try:
+            cama = query_camas.filter(Camas.id == cama_id).first()
+            return cama.letra
+        except Exception as e:
+            print(f"cama error {e}")
+    else:
+        return "0"
 
 def ip_cama(db:Session, cama_id:int) -> str:
     query_camas = db.query(Camas)
@@ -221,6 +243,13 @@ def create_llamadas_temporales(db, numero_habitacion, letra_cama):
     db.refresh(llamada_temporal)
     return
 
+def last_llamadas_temporales(db: Session):
+    return (
+        db.query(Models.LlamadasTemporales)
+        .order_by(Models.LlamadasTemporales.hora.desc())
+        .limit(24)
+        .all()
+    )
 
 def update_llamadas_temporales():
     return
