@@ -60,3 +60,18 @@ def last_llamadas_temporales(db: Session):
 
     print(resultado)
     return resultado
+
+def create_enfermero(db: Session, enfermero: dict) -> None:
+    """Crea un nuevo enfermero en la base de datos."""
+    try:
+        Crud.create_enfermero(db=db, enfermero=enfermero)
+    except Exception as e:
+        print(f"Error al crear enfermero: {e}")
+
+def all_enfermeros(db:Session):
+    """devuelve todos los enfermeros"""
+    return Crud.all_enfermeros(db=db)
+
+def delete_enfermeros(db:Session, codigo: str):
+    """elimina un enfermero de la base de datos"""
+    return Crud.delete_enfermeros(db=db, codigo=codigo)

@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, redirect, url_for
 from flask import jsonify, request, make_response,  render_template
 from flask_cors import CORS
 import uuid
@@ -92,3 +92,29 @@ def atender_asistencia(numero_habitacion, letra_cama, cookie:str):
 def ultimas_asistencias():
     db = next(get_db())
     return jsonify(DataControlService.last_llamadas_temporales(db=db)), 200
+
+@app.route("/admin", methods=["GET"])
+def admin_web():
+    return render_template('index.html')
+
+@app.route("/admin/gestion_usuarios", methods=["GET", "POST"])
+def gestion_usuarios():
+    db = next(get_db())
+
+    if request.method == "POST":
+        DataControlService.create_enfermero(db, enfermero = {
+            "nombre": request.form.get("nombre"),
+            "apellido": request.form.get("apellido"),
+            "codigo": request.form.get("codigo"),
+            "contrasena": request.form.get("contrasena")
+        })
+
+    # GET: Mostrar enfermeros
+    usuarios = DataControlService.all_enfermeros(db)
+    return render_template('gestion_usuarios.html', usuarios=usuarios)
+
+
+@app.route("/admin/gestion_usuarios/eliminar/<int:id_enfermero>", methods=["POST"])
+def eliminar_enfermero(id_enfermero):
+    db = next(get_db())
+    return redirect(url_for("gestion_usuarios"))
