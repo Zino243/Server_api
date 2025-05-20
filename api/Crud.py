@@ -38,17 +38,40 @@ def create_enfermeros(nombre: str, apellido: str, codigo: str, contrasena: str, 
     db.commit()
     db.refresh(enfermero)
 
-
+def create_enfermero(db: Session, enfermero: dict) -> None:
+    """Crea un nuevo enfermero en la base de datos."""
+    try:
+        new_enfermero = Models.Enfermeros(
+            nombre=enfermero["nombre"],
+            apellido=enfermero["apellido"],
+            codigo=enfermero["codigo"],
+            contrasena=enfermero["contrasena"]
+        )
+        db.add(new_enfermero)
+        db.commit()
+        db.refresh(new_enfermero)
+    except Exception as e:
+        print(f"Error al crear enfermero: {e}")
+        raise
 def update_enfermeros():
     return
 
 
-def read_enfermeros():
-    return
+def all_enfermeros(db: Session):
+    """devuelve todos los enfermeros"""
+    query_enfermeros = db.query(Models.Enfermeros).all()
+    return query_enfermeros
 
 
-def delete_enfermeros(codigo: str):
-    return
+def delete_enfermeros(db:Session, codigo: str):
+    """elimina un enfermero"""
+    query_enfermeros = db.query(Models.Enfermeros).filter(Models.Enfermeros.codigo == codigo).first()
+    if query_enfermeros:
+        db.delete(query_enfermeros)
+        db.commit()
+        return True
+    else:
+        return False
 
 def id_for_cookie(db:Session, cookie:int):
     query_cookie = db.query(Cookies)

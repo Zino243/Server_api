@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gestión de Enfermeros</title>
+</head>
+<body>
+    <h1>Lista de enfermeros</h1>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+        {% for msg in messages %}
+          <li>{{ msg }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <table border="1">
+        <thead>
+            <tr><th>ID</th><th>Nombre</th><th>Apellido</th><th>Código</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+            {% for enfermero in usuarios %}
+            <tr>
+                <td>{{ enfermero.id }}</td>
+                <td>{{ enfermero.nombre }}</td>
+                <td>{{ enfermero.apellido }}</td>
+                <td>{{ enfermero.codigo }}</td>
+                <td>
+                    <form action="{{ url_for('eliminar_enfermero', id_enfermero=enfermero.id) }}" method="post" style="display:inline;">
+                        <button type="submit" onclick="return confirm('¿Eliminar enfermero?');">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Crear nuevo enfermero</h2>
+    <form action="{{ url_for('gestion_usuarios') }}" method="post">
+        <input type="text" name="nombre" placeholder="Nombre" required>
+        <input type="text" name="apellido" placeholder="Apellido" required>
+        <input type="text" name="codigo" placeholder="Código único" required>
+        <input type="password" name="contrasena" placeholder="Contraseña" required>
+        <button type="submit">Crear</button>
+    </form>
+</body>
+</html>
