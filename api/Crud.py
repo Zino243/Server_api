@@ -284,3 +284,10 @@ def read_llamadas_temporales():
 
 def delete_llamadas_temporales():
     return
+
+def ultima_ip_asignada(db:Session):
+    query_camas = db.query(Camas).order_by(Camas.id.desc()).first()
+    if query_camas:
+        return query_camas.ip
+    else:
+        return 0

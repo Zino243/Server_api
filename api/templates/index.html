@@ -11,7 +11,7 @@
     </style>
 </head>
 <body>
-    <h1><a href="http://192.168.0.21:5000/gestion_usuarios">Gestion de usuarios</a></h1>
+    <h1><a href="http://192.168.0.20/gestion_usuarios">Gestion de usuarios</a></h1>
     <h1>Llamadas Temporales</h1>
     <table id="llamadas-table">
         <thead>
@@ -27,7 +27,7 @@
         </tbody>
     </table>
     <script>
-        fetch('http://192.168.0.21:5000/ultimas_asistencias')
+        fetch('http://192.168.0.20/ultimas_asistencias')
             .then(response => response.json())
             .then(data => {
                 const tbody = document.querySelector('#llamadas-table tbody');

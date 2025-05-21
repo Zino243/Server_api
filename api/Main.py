@@ -2,6 +2,7 @@ from flask import Flask, redirect, url_for
 from flask import jsonify, request, make_response,  render_template
 from flask_cors import CORS
 import uuid
+from . import IPControlService
 from . import DataControlService
 from . import Database
 
@@ -118,3 +119,18 @@ def gestion_usuarios():
 def eliminar_enfermero(id_enfermero):
     db = next(get_db())
     return redirect(url_for("gestion_usuarios"))
+
+@app.route("/gestion/ip/ultima", methods=["GET"])
+def ultima():
+    db = next(get_db())
+    return jsonify(IPControlService.obtener_ultima_ip(db=db)), 200
+
+@app.route("/gestion/ip/siguiente", methods=["GET"])
+def siguiente():
+    db = next(get_db())
+    return jsonify(IPControlService.siguiente_ip('config.json',db=db)), 200
+
+@app.route("/gestion/ip/asignar", methods=["GET"])
+def asignar():
+    db = next(get_db())
+    return jsonify(IPControlService.asignar_ip(db=db, ruta_config='config.json')), 200
