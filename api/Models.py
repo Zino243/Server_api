@@ -93,7 +93,7 @@ class Presencias(Base):
 
 
 class Cookies(Base):
-    __tablename__ = 'cookies'
+    __tablename__ = 'cookies.json'
 
     # Autogenerado por la BBDD
     id = Column(Integer, autoincrement=True, primary_key=True, index=True)

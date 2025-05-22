@@ -1,18 +1,15 @@
-import json
+from . import ConfigService
 from ipaddress import ip_address
 from sqlalchemy.orm import Session
 from . import Crud
 
-def cargar_configuracion(ruta_config):
-    with open(ruta_config, "r") as f:
-        return json.load(f)
 
 def obtener_ultima_ip(db: Session):
     # Supón que Crud.ultima_ip_asignada devuelve la última IP como string
     return Crud.ultima_ip_asignada(db)
 
-def siguiente_ip(ruta_config, db:Session):
-    c = cargar_configuracion(ruta_config)
+def siguiente_ip(db:Session):
+    c = ConfigService.cargar_configuracion()
     ip = ip_address(obtener_ultima_ip(db))
     ip_fin = ip_address(c["ip_fin"])
     if ip < ip_fin:
@@ -20,8 +17,8 @@ def siguiente_ip(ruta_config, db:Session):
     else:
         raise ValueError("No hay más IPs disponibles en el rango.")
 
-def asignar_ip(db: Session, ruta_config):
-    config = cargar_configuracion(ruta_config)
+def asignar_ip(db: Session):
+    config = ConfigService.cargar_configuracion()
     tipo = config["tipo"]  # A, B o C
     ip_inicio = config["ip_inicio"]
     ip_fin = config["ip_fin"]

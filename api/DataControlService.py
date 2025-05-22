@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 import requests
 from . import Crud
-
+from . import IPControlService
+from . import ConfigService
 url = "https://api.pushover.net/1/messages.json"
 
 def save_call_in_bbdd(numero_habitacion, letra_cama:str, db: Session):
@@ -16,13 +17,12 @@ def save_call_in_bbdd(numero_habitacion, letra_cama:str, db: Session):
                                     )
 
 def send_pushover(numero_habitacion, letra_cama):
-
+    config = ConfigService.cargar_configuracion()
     requests.post(url, data= {
         "token": "ankvim4u8c554keqni3h6f3oymms7a",
         "user": "g6qd86iinmyd2i4gvrrtzgt9849aa5",
-        # "message": f"ve a la habitacion {numero_habitacion} cama {letra_cama}",
-        "message": "prueba",
-        "url" : f"http://192.168.0.21:8000/confirmar",
+        "message": f"ve a la habitacion {numero_habitacion} cama {letra_cama}",
+        "url" : f"http://{config["ip_server"]}:{config["puerto_server"]}/confirmar",
         "url_title" : "confirmar",
         # "url" : f"http://127.0.0.1:8000/atender_asistencia/{numero_habitacion}/{letra_cama}/cookie",
     })
@@ -44,6 +44,17 @@ def send_led_on(db: Session, numero_habitacion: str, letra_cama: str) -> None:
         raise ValueError(f"ip incorrecta {ip}")
     else:
         response = requests.get(f"http://{ip}/relay/0?turn=on")
+        response.raise_for_status()
+
+def send_led_off(db: Session, numero_habitacion: str, letra_cama: str) -> None:
+
+    habitacion = Crud.habitacionID(db = db, numero_habitacion = numero_habitacion)
+    cama_id = Crud.camas_id(db=db, habitacion = habitacion, letra_cama= letra_cama)
+    ip = Crud.ip_cama(db=db, cama_id= cama_id)
+    if ip == 0:
+        raise ValueError(f"ip incorrecta {ip}")
+    else:
+        response = requests.get(f"http://{ip}/relay/0?turn=off")
         response.raise_for_status()
 
 def last_llamadas_temporales(db: Session):
@@ -75,3 +86,11 @@ def all_enfermeros(db:Session):
 def delete_enfermeros(db:Session, codigo: str):
     """elimina un enfermero de la base de datos"""
     return Crud.delete_enfermeros(db=db, codigo=codigo)
+
+def exist_enfemero(db:Session, codigo: str):
+    """verifica si existe un enfermero"""
+    return Crud.exist_enfermero(db=db, codigo=codigo)
+
+def enfermero_by_code(db:Session, codigo: str):
+    """devuelve un enfermero por su codigo"""
+    return Crud.enfermero_by_code(db=db, codigo=codigo)

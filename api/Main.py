@@ -5,6 +5,7 @@ import uuid
 from . import IPControlService
 from . import DataControlService
 from . import Database
+from . import CookiesService
 
 app = Flask(__name__)
 CORS(app)
@@ -33,20 +34,27 @@ def procesar_registro():
     if not username:
         return "Falta el nombre de usuario", 400
 
-    # Si ya estaba registrado, eliminar cookie anterior
-    if username in usuarios:
-        old_session = usuarios[username]
-        sesiones.pop(old_session, None)
+    db = next(get_db())
+    # comprueba si el usuairo existe
+    if DataControlService.exist_enfemero(db, username):
+        # Si ya estaba registrado, eliminar cookie anterior
+        if username in usuarios:
+            old_session = usuarios[username]
+            sesiones.pop(old_session, None)
 
-    # Crear nueva sesión
-    session_id = str(uuid.uuid4())
-    sesiones[session_id] = username
-    usuarios[username] = session_id
+        # Crear nueva sesión
+        session_id = str(uuid.uuid4())
+        sesiones[session_id] = username
+        usuarios[username] = session_id
 
-    # Asignar cookie
-    resp = make_response(f"✅ Bienvenido, {username}. Te has registrado.")
-    resp.set_cookie("session_id", session_id, max_age=604800, httponly=True)
-    return resp
+        #guardar la cookie
+        CookiesService.crear_cookie(session_id, username)
+
+        # Asignar cookie
+        resp = make_response(f"✅ Bienvenido, {username}. Te has registrado.")
+        resp.set_cookie("session_id", session_id, max_age=604800, httponly=True)
+        return resp
+    return "❌ Usuario no encontrado", 403
 
 @app.route("/unenroll", methods=["GET"])
 def cerrar_sesion():
@@ -59,13 +67,21 @@ def cerrar_sesion():
     # Eliminar cookie del navegador
     resp = make_response("👋 Sesión cerrada correctamente.")
     resp.set_cookie("session_id", "", max_age=0)
+
+    # eliminar cookie del json
+
+    CookiesService.eliminar_cookie(session_id)
     return resp
 
 @app.route("/confirmar", methods=["GET"])
 def confirmar():
     session_id = request.cookies.get("session_id")
-    if session_id in sesiones:
-        return f"✅ Acción confirmada para {sesiones[session_id]}"
+
+    cookie_local = CookiesService.leer_cookies()
+    for i in cookie_local.keys():
+        if session_id == i:
+            db = next(get_db())
+            return f"✅ Acción confirmada para {DataControlService.enfermero_by_code(db, cookie_local[i])}"
     else:
         return "❌ Sesión no válida. ¿Te registraste?", 403
 
@@ -75,19 +91,36 @@ def ping():
 
 @app.route("/llamada/<string:numero_habitacion>/<string:letra_cama>", methods=["GET"])
 def llamar_enfermo(numero_habitacion, letra_cama):
-    db = next(get_db())
-    DataControlService.send_pushover(numero_habitacion = numero_habitacion, letra_cama = letra_cama)
-    DataControlService.save_call_in_bbdd(numero_habitacion =numero_habitacion, letra_cama= letra_cama, db= db)
+    try:
+        db = next(get_db())
+        DataControlService.send_pushover(numero_habitacion = numero_habitacion, letra_cama = letra_cama)
+        DataControlService.save_call_in_bbdd(numero_habitacion=numero_habitacion, letra_cama=letra_cama, db=db)
+        return jsonify({"status": "ok"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
-    return "correct"
 
-@app.route("/atender_asistencia/<string:numero_habitacion>/<string:letra_cama>/<string:cookie>", methods=["GET"])
+@app.route("/atender_asistencia/<string:numero_habitacion>/<string:letra_cama>", methods=["GET"])
 def atender_asistencia(numero_habitacion, letra_cama, cookie:str):
-    db = next(get_db())
+    try:
+        db = next(get_db())
 
-    DataControlService.send_led_on(db, numero_habitacion, letra_cama)
-    DataControlService.save_asistencias(db, numero_habitacion, letra_cama, cookie)
-    return f"asistencia atendida por el usuario con la galleta {cookie}"
+        DataControlService.send_led_on(db, numero_habitacion, letra_cama)
+        DataControlService.save_asistencias(db, numero_habitacion, letra_cama, cookie)
+        return jsonify({"status": f"asistencia atendida por el usuario con la galleta {cookie}"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/presencia/<string:numero_habitacion>/<string:letra_cama>", methods=["GET"])
+def presencia(numero_habitacion, letra_cama):
+    try:
+        db = next(get_db())
+        DataControlService.send_led_off(db, numero_habitacion, letra_cama)
+        DataControlService.save_presencias(db, numero_habitacion, letra_cama)
+        # guardar la presencia en la bbdd
+        return jsonify({"status": "ok"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 @app.route("/ultimas_asistencias", methods=["GET"])
 def ultimas_asistencias():
@@ -128,9 +161,9 @@ def ultima():
 @app.route("/gestion/ip/siguiente", methods=["GET"])
 def siguiente():
     db = next(get_db())
-    return jsonify(IPControlService.siguiente_ip('config.json',db=db)), 200
+    return jsonify(IPControlService.siguiente_ip(db=db)), 200
 
 @app.route("/gestion/ip/asignar", methods=["GET"])
 def asignar():
     db = next(get_db())
-    return jsonify(IPControlService.asignar_ip(db=db, ruta_config='config.json')), 200
+    return jsonify(IPControlService.asignar_ip(db=db)), 200
