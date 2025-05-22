@@ -95,15 +95,14 @@ def ping():
 def llamar_enfermo(numero_habitacion, letra_cama):
     try:
         db = next(get_db())
-        DataControlService.send_pushover(numero_habitacion = numero_habitacion, letra_cama = letra_cama)
         DataControlService.save_call_in_bbdd(numero_habitacion=numero_habitacion, letra_cama=letra_cama, db=db)
         return jsonify({"status": "ok"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
 
-@app.route("/atender_asistencia/<string:numero_habitacion>/<string:letra_cama>", methods=["GET"])
-def atender_asistencia(numero_habitacion, letra_cama):
+@app.route("/atender_asistencia/<string:numero_habitacion>/<string:letra_cama>/<string:id_llamada>", methods=["GET"])
+def atender_asistencia(numero_habitacion, letra_cama, id_llamada):
     try:
         db = next(get_db())
         config = ConfigService.cargar_configuracion()
@@ -118,7 +117,14 @@ def atender_asistencia(numero_habitacion, letra_cama):
         cookies_local = CookiesService.leer_cookies()
         #
         DataControlService.send_led_on(db, numero_habitacion, letra_cama)
-        DataControlService.save_asistencias(db, numero_habitacion, letra_cama, cookies_local[session_id])
+        try:
+            control = DataControlService.save_asistencias(db, numero_habitacion, letra_cama, cookies_local[session_id])
+            if control:
+                DataControlService.marcar_llamada_espera(db=db, id_llamada=id_llamada)
+
+        except Exception as e:
+            print(f"Error al guardar asistencia: {e}")
+            return jsonify({"error": str(e)}), 400
         return jsonify({"status": f"ok"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
@@ -130,7 +136,8 @@ def presencia(numero_habitacion, letra_cama):
         db = next(get_db())
         DataControlService.send_led_off(db, numero_habitacion, letra_cama)
         DataControlService.save_presencias(db, numero_habitacion, letra_cama)
-        # guardar la presencia en la bbdd
+
+        DataControlService.marcar_llamada_en_cogida(db, numero_habitacion, letra_cama)
         return jsonify({"status": "ok"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
@@ -142,7 +149,7 @@ def ultimas_asistencias():
 
 @app.route("/admin", methods=["GET"])
 def admin_web():
-    return render_template('index.html')
+    return render_template('index.html', ip=ConfigService.cargar_configuracion()["ip_server"], puerto=ConfigService.cargar_configuracion()["puerto_server"])
 
 @app.route("/admin/gestion_usuarios", methods=["GET", "POST"])
 def gestion_usuarios():
@@ -158,13 +165,16 @@ def gestion_usuarios():
 
     # GET: Mostrar enfermeros
     usuarios = DataControlService.all_enfermeros(db)
-    return render_template('gestion_usuarios.html', usuarios=usuarios)
+    return render_template('gestion_usuarios.html', usuarios=usuarios, ip=ConfigService.cargar_configuracion()["ip_server"], puerto=ConfigService.cargar_configuracion()["puerto_server"])
 
 
-@app.route("/admin/gestion_usuarios/eliminar/<int:id_enfermero>", methods=["POST"])
+@app.route("/admin/gestion_usuarios/eliminar/<string:id_enfermero>", methods=["GET"])
 def eliminar_enfermero(id_enfermero):
     db = next(get_db())
-    return redirect(url_for("gestion_usuarios"))
+    print(f" === {id_enfermero}")
+    DataControlService.delete_enfermeros(db=db, id=id_enfermero)
+    return jsonify({"status" : "deleted ok!"}), 200
+    # return render_template('gestion_usuarios.html', id_enfermero = id_enfermero), 200
 
 @app.route("/gestion/ip/ultima", methods=["GET"])
 def ultima():

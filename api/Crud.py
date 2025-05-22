@@ -63,15 +63,18 @@ def all_enfermeros(db: Session):
     return query_enfermeros
 
 
-def delete_enfermeros(db:Session, codigo: str):
-    """elimina un enfermero"""
-    query_enfermeros = db.query(Models.Enfermeros).filter(Models.Enfermeros.codigo == codigo).first()
-    if query_enfermeros:
-        db.delete(query_enfermeros)
+def delete_enfermeros(db: Session, id: str):
+    # Buscar al enfermero por su id
+    enfermero = db.query(Models.Enfermeros).filter(Models.Enfermeros.id == id).first()
+
+    if enfermero:
+        # Eliminar el enfermero (SQLAlchemy se encargará de borrar las relaciones por el cascade)
+        db.delete(enfermero)
         db.commit()
         return True
     else:
         return False
+
 
 def id_for_cookie(db:Session, cookie:int):
     query_cookie = db.query(Cookies)
@@ -187,7 +190,7 @@ def create_llamadas_temporales(db, numero_habitacion, letra_cama):
     db.add(llamada_temporal)
     db.commit()
     db.refresh(llamada_temporal)
-    return
+    return llamada_temporal.llamada_id
 
 def last_llamadas_temporales(db: Session):
     return (
@@ -203,3 +206,55 @@ def ultima_ip_asignada(db:Session):
         return query_camas.ip
     else:
         return 0
+
+def get_llamadas_temporales(db: Session):
+    return db.query(Models.LlamadasTemporales).all()
+
+def get_llamada_temporal(db: Session, llamada_id: int):
+    return db.query(Models.LlamadasTemporales).filter(Models.LlamadasTemporales.llamada_id == llamada_id).first()
+
+def update_estado_llamada_cogida(db: Session, numero_habitacion, letra_cama):
+    """
+    Actualiza el estado a 'cogida' para todas las llamadas pendientes de una cama y habitación.
+    """
+    try:
+        llamadas = (
+            db.query(Models.LlamadasTemporales)
+            .filter(
+                Models.LlamadasTemporales.habitacion_id == numero_habitacion,
+                Models.LlamadasTemporales.cama_id == letra_cama,
+                Models.LlamadasTemporales.estado.in_(['pendiente', 'en_espera'])
+            )
+            .all()
+        )
+        if llamadas:
+            for llamada in llamadas:
+                llamada.estado = 'cogida'
+            db.commit()
+            return True
+        else:
+            return False
+    except Exception as e:
+        print(f"Error al actualizar llamadas: {e}")
+        db.rollback()
+        return False
+def update_estado_llamada_por_id(db: Session, llamada_id: int, nuevo_estado: str):
+    """Actualiza el estado de una llamada temporal por su ID."""
+    if nuevo_estado not in ['pendiente', 'cogida', 'en_espera']:
+        raise ValueError("Estado no válido. Los valores permitidos son: 'pendiente', 'cogida', 'en_espera'.")
+    llamada = db.query(Models.LlamadasTemporales).filter(Models.LlamadasTemporales.llamada_id == llamada_id).first()
+    if llamada:
+        llamada.estado = nuevo_estado
+        db.commit()
+        return True
+    else:
+        return False
+
+def marcar_llamada_cogida(db: Session, numero_habitacion, letra_cama):
+    return update_estado_llamada_cogida(db, numero_habitacion, letra_cama)
+
+def marcar_llamada_espera(db: Session, llamada_id: int):
+    return update_estado_llamada_por_id(db, llamada_id, 'en_espera')
+
+def marcar_llamada_pendiente(db: Session, llamada_id: int):
+    return update_estado_llamada_por_id(db, llamada_id, 'pendiente')

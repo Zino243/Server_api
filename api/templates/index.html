@@ -11,23 +11,23 @@
     </style>
 </head>
 <body>
-    <h1><a href="http://192.168.0.20/gestion_usuarios">Gestion de usuarios</a></h1>
+    <h1><a href="http://{{ ip }}:{{ puerto }}/admin/gestion_usuarios">Gestion de usuarios</a></h1>
     <h1>Llamadas Temporales</h1>
     <table id="llamadas-table">
         <thead>
             <tr>
                 <th>#</th>
-                <th>ID Habitación</th>
-                <th>ID Cama</th>
+                <th>Habitación</th>
+                <th>Cama</th>
                 <th>Hora</th>
+                <th>Estado</th>
             </tr>
         </thead>
         <tbody>
-            <!-- Los datos se insertarán aquí -->
         </tbody>
     </table>
     <script>
-        fetch('http://192.168.0.20/ultimas_asistencias')
+        fetch('http://{{ ip }}:{{ puerto }}/ultimas_asistencias')
             .then(response => response.json())
             .then(data => {
                 const tbody = document.querySelector('#llamadas-table tbody');
@@ -39,6 +39,7 @@
                         <td>${llamada.habitacion_id}</td>
                         <td>${llamada.cama_id}</td>
                         <td>${llamada.hora}</td>
+                        <td>${llamada.estado}</td>
                     `;
                     tbody.appendChild(row);
                 });
