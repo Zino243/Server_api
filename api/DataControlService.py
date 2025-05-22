@@ -22,18 +22,21 @@ def send_pushover(numero_habitacion, letra_cama):
         "token": "ankvim4u8c554keqni3h6f3oymms7a",
         "user": "g6qd86iinmyd2i4gvrrtzgt9849aa5",
         "message": f"ve a la habitacion {numero_habitacion} cama {letra_cama}",
-        "url" : f"http://{config["ip_server"]}:{config["puerto_server"]}/confirmar",
+        "url" : f"http://{config["ip_server"]}:{config["puerto_server"]}/atender_asistencia/{numero_habitacion}/{letra_cama}",
         "url_title" : "confirmar",
         # "url" : f"http://127.0.0.1:8000/atender_asistencia/{numero_habitacion}/{letra_cama}/cookie",
     })
 
-def save_asistencias(db:Session, numero_habitacion, letra_cama, cookie):
+def save_asistencias(db:Session, numero_habitacion, letra_cama, codigo):
     """esto es atender asistencia"""
-
-    habitacion_id = Crud.habitacionID(db = db, numero_habitacion = numero_habitacion)
-    cama_id = Crud.camas_id(db=db, habitacion = habitacion_id, letra_cama= letra_cama)
-    enfemero_id = Crud.id_for_cookie(db=db, cookie=cookie)
-    Crud.create_asistencias(db = db ,habitacion_id = habitacion_id, cama_id = cama_id, enfemero_id = enfemero_id)
+    try:
+        habitacion_id = Crud.habitacionID(db = db, numero_habitacion = numero_habitacion)
+        cama_id = Crud.camas_id(db=db, habitacion = habitacion_id, letra_cama= letra_cama)
+        enfemero_id = Crud.enfermero_ID_by_code(db=db, codigo=codigo)
+        print(f"enfermero id {enfemero_id}")
+        Crud.create_asistencias(db = db ,habitacion_id = habitacion_id, cama_id = cama_id, enfemero_id = enfemero_id)
+    except Exception as e:
+        print(f"Error al guardar asistencia: {e}")
 
 def send_led_on(db: Session, numero_habitacion: str, letra_cama: str) -> None:
 
@@ -94,3 +97,12 @@ def exist_enfemero(db:Session, codigo: str):
 def enfermero_by_code(db:Session, codigo: str):
     """devuelve un enfermero por su codigo"""
     return Crud.enfermero_by_code(db=db, codigo=codigo)
+
+def save_presencias(db:Session, numero_habitacion, letra_cama):
+    """esto es atender asistencia"""
+    try:
+        habitacion_id = Crud.habitacionID(db = db, numero_habitacion = numero_habitacion)
+        cama_id = Crud.camas_id(db=db, habitacion = habitacion_id, letra_cama= letra_cama)
+        Crud.create_presencias(db = db ,habitacion_id = habitacion_id, cama_id = cama_id)
+    except Exception as e:
+        print(f"Error al guardar asistencia: {e}")

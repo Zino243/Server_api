@@ -44,13 +44,19 @@ def exist_enfermero(db:Session, codigo: str):
         return False
 def enfermero_by_code(db:Session, codigo: str):
     """devuelve un enfermero por su codigo"""
-    print("=====" , codigo)
     query_enfermeros = db.query(Models.Enfermeros).filter(Models.Enfermeros.codigo == codigo).first()
     if query_enfermeros:
         return query_enfermeros.nombre
     else:
         return False
 
+def enfermero_ID_by_code(db:Session, codigo: str):
+    """devuelve un enfermero por su codigo"""
+    query_enfermeros = db.query(Models.Enfermeros).filter(Models.Enfermeros.codigo == codigo).first()
+    if query_enfermeros:
+        return query_enfermeros.id
+    else:
+        return False
 def all_enfermeros(db: Session):
     """devuelve todos los enfermeros"""
     query_enfermeros = db.query(Models.Enfermeros).all()
@@ -149,17 +155,27 @@ def delete_camas():
 # asistencias
 
 def create_asistencias(db:Session, habitacion_id, cama_id, enfemero_id):
-
-    asistencia = Models.Asistencias(
+    print("[+]asistencia guardada")
+    try:
+        asistencia = Models.Asistencias(
+            habitacion_id = habitacion_id,
+            cama_id = cama_id,
+            enfermeros_id = enfemero_id,
+        )
+        db.add(asistencia)
+        db.commit()
+        db.refresh(asistencia)
+    except Exception as e:
+        print(f"Error al guardar asistencia: {e}")
+# presencias
+def create_presencias(db:Session, habitacion_id, cama_id):
+    presencia = Models.Presencias(
         habitacion_id = habitacion_id,
         cama_id = cama_id,
-        enfermeros_id = enfemero_id,
     )
-    db.add(asistencia)
+    db.add(presencia)
     db.commit()
-    db.refresh(asistencia)
-
-# presencias
+    db.refresh(presencia)
 
 # llamadas_temp
 

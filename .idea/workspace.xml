@@ -5,18 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="228dedda-311f-4961-abc7-75e3f903e1b2" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/api/ConfigService.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api/CookiesService.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/source/cookies.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sources/cookies.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/Crud.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/Crud.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/DataControlService.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/DataControlService.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/IPControlService.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/IPControlService.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/Main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/Models.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/Models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

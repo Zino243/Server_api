@@ -1,3 +1,4 @@
+import requests
 from flask import Flask, redirect, url_for
 from flask import jsonify, request, make_response,  render_template
 from flask_cors import CORS
@@ -6,6 +7,7 @@ from . import IPControlService
 from . import DataControlService
 from . import Database
 from . import CookiesService
+from . import ConfigService
 
 app = Flask(__name__)
 CORS(app)
@@ -81,7 +83,7 @@ def confirmar():
     for i in cookie_local.keys():
         if session_id == i:
             db = next(get_db())
-            return f"✅ Acción confirmada para {DataControlService.enfermero_by_code(db, cookie_local[i])}"
+            return f"✅ Acción confirmada para {DataControlService.enfermero_by_code(db, cookie_local[i])}", 200
     else:
         return "❌ Sesión no válida. ¿Te registraste?", 403
 
@@ -101,15 +103,26 @@ def llamar_enfermo(numero_habitacion, letra_cama):
 
 
 @app.route("/atender_asistencia/<string:numero_habitacion>/<string:letra_cama>", methods=["GET"])
-def atender_asistencia(numero_habitacion, letra_cama, cookie:str):
+def atender_asistencia(numero_habitacion, letra_cama):
     try:
         db = next(get_db())
+        config = ConfigService.cargar_configuracion()
 
+        session_id = request.cookies.get("session_id")
+        cookies = {"session_id": session_id}
+
+        # Mandamos esa cookie a /confirmar
+        response = requests.get(f"http://{config['ip_server']}:{config['puerto_server']}/confirmar", cookies=cookies)
+        response.raise_for_status()
+
+        cookies_local = CookiesService.leer_cookies()
+        #
         DataControlService.send_led_on(db, numero_habitacion, letra_cama)
-        DataControlService.save_asistencias(db, numero_habitacion, letra_cama, cookie)
-        return jsonify({"status": f"asistencia atendida por el usuario con la galleta {cookie}"}), 200
+        DataControlService.save_asistencias(db, numero_habitacion, letra_cama, cookies_local[session_id])
+        return jsonify({"status": f"ok"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
 
 @app.route("/presencia/<string:numero_habitacion>/<string:letra_cama>", methods=["GET"])
 def presencia(numero_habitacion, letra_cama):
