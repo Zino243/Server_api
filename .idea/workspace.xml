@@ -5,15 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="228dedda-311f-4961-abc7-75e3f903e1b2" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/api/templates/gestion_usuarios.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api/templates/index.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api/templates/prueba.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/Crud.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/Crud.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/DataControlService.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/DataControlService.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/Main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/web/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/Models.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/Models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/templates/gestion_usuarios.html" beforeDir="false" afterPath="$PROJECT_DIR$/api/templates/gestion_usuarios.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/api/templates/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,8 +26,12 @@
       </list>
     </option>
   </component>
+  <component name="Git.Merge.Settings">
+    <option name="BRANCH" value="develop_api" />
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="MIXED" />
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/.venv/lib/python3.13/site-packages/sqlalchemy/sql/schema.py" root0="SKIP_INSPECTION" />
@@ -42,22 +45,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.Data_massive_creator.executor": "Run",
-    "Python.connector.executor": "Run",
-    "Python.data_massive_creator.executor": "Run",
-    "Python.main.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "develop__api",
-    "last_opened_file_path": "/home/zino243/Proyects/Server_api/api/templates",
-    "settings.editor.selected.configurable": "preferences.pluginManager"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.Data_massive_creator.executor&quot;: &quot;Run&quot;,
+    &quot;Python.connector.executor&quot;: &quot;Run&quot;,
+    &quot;Python.data_massive_creator.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;develop__api&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/zino243/Proyects/Server_api/api/templates&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/api/templates" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/api/sources" />
     </key>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -70,5 +76,19 @@
       <updated>1746272295184</updated>
     </task>
     <servers />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName=".env" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>

@@ -1,9 +1,13 @@
+import requests
 from flask import Flask, redirect, url_for
 from flask import jsonify, request, make_response,  render_template
 from flask_cors import CORS
 import uuid
+from . import IPControlService
 from . import DataControlService
 from . import Database
+from . import CookiesService
+from . import ConfigService
 
 app = Flask(__name__)
 CORS(app)
@@ -32,20 +36,27 @@ def procesar_registro():
     if not username:
         return "Falta el nombre de usuario", 400
 
-    # Si ya estaba registrado, eliminar cookie anterior
-    if username in usuarios:
-        old_session = usuarios[username]
-        sesiones.pop(old_session, None)
+    db = next(get_db())
+    # comprueba si el usuairo existe
+    if DataControlService.exist_enfemero(db, username):
+        # Si ya estaba registrado, eliminar cookie anterior
+        if username in usuarios:
+            old_session = usuarios[username]
+            sesiones.pop(old_session, None)
 
-    # Crear nueva sesión
-    session_id = str(uuid.uuid4())
-    sesiones[session_id] = username
-    usuarios[username] = session_id
+        # Crear nueva sesión
+        session_id = str(uuid.uuid4())
+        sesiones[session_id] = username
+        usuarios[username] = session_id
 
-    # Asignar cookie
-    resp = make_response(f"✅ Bienvenido, {username}. Te has registrado.")
-    resp.set_cookie("session_id", session_id, max_age=604800, httponly=True)
-    return resp
+        #guardar la cookie
+        CookiesService.crear_cookie(session_id, username)
+
+        # Asignar cookie
+        resp = make_response(f"✅ Bienvenido, {username}. Te has registrado.")
+        resp.set_cookie("session_id", session_id, max_age=604800, httponly=True)
+        return resp
+    return "❌ Usuario no encontrado", 403
 
 @app.route("/unenroll", methods=["GET"])
 def cerrar_sesion():
@@ -58,13 +69,21 @@ def cerrar_sesion():
     # Eliminar cookie del navegador
     resp = make_response("👋 Sesión cerrada correctamente.")
     resp.set_cookie("session_id", "", max_age=0)
+
+    # eliminar cookie del json
+
+    CookiesService.eliminar_cookie(session_id)
     return resp
 
 @app.route("/confirmar", methods=["GET"])
 def confirmar():
     session_id = request.cookies.get("session_id")
-    if session_id in sesiones:
-        return f"✅ Acción confirmada para {sesiones[session_id]}"
+
+    cookie_local = CookiesService.leer_cookies()
+    for i in cookie_local.keys():
+        if session_id == i:
+            db = next(get_db())
+            return f"✅ Acción confirmada para {DataControlService.enfermero_by_code(db, cookie_local[i])}", 200
     else:
         return "❌ Sesión no válida. ¿Te registraste?", 403
 
@@ -74,19 +93,54 @@ def ping():
 
 @app.route("/llamada/<string:numero_habitacion>/<string:letra_cama>", methods=["GET"])
 def llamar_enfermo(numero_habitacion, letra_cama):
-    db = next(get_db())
-    DataControlService.send_pushover(numero_habitacion = numero_habitacion, letra_cama = letra_cama)
-    DataControlService.save_call_in_bbdd(numero_habitacion =numero_habitacion, letra_cama= letra_cama, db= db)
+    try:
+        db = next(get_db())
+        DataControlService.save_call_in_bbdd(numero_habitacion=numero_habitacion, letra_cama=letra_cama, db=db)
+        return jsonify({"status": "ok"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
-    return "correct"
 
-@app.route("/atender_asistencia/<string:numero_habitacion>/<string:letra_cama>/<string:cookie>", methods=["GET"])
-def atender_asistencia(numero_habitacion, letra_cama, cookie:str):
-    db = next(get_db())
+@app.route("/atender_asistencia/<string:numero_habitacion>/<string:letra_cama>/<string:id_llamada>", methods=["GET"])
+def atender_asistencia(numero_habitacion, letra_cama, id_llamada):
+    try:
+        db = next(get_db())
+        config = ConfigService.cargar_configuracion()
 
-    DataControlService.send_led_on(db, numero_habitacion, letra_cama)
-    DataControlService.save_asistencias(db, numero_habitacion, letra_cama, cookie)
-    return f"asistencia atendida por el usuario con la galleta {cookie}"
+        session_id = request.cookies.get("session_id")
+        cookies = {"session_id": session_id}
+
+        # Mandamos esa cookie a /confirmar
+        response = requests.get(f"http://{config['ip_server']}:{config['puerto_server']}/confirmar", cookies=cookies)
+        response.raise_for_status()
+
+        cookies_local = CookiesService.leer_cookies()
+        #
+        DataControlService.send_led_on(db, numero_habitacion, letra_cama)
+        try:
+            control = DataControlService.save_asistencias(db, numero_habitacion, letra_cama, cookies_local[session_id])
+            if control:
+                DataControlService.marcar_llamada_espera(db=db, id_llamada=id_llamada)
+
+        except Exception as e:
+            print(f"Error al guardar asistencia: {e}")
+            return jsonify({"error": str(e)}), 400
+        return jsonify({"status": f"ok"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/presencia/<string:numero_habitacion>/<string:letra_cama>", methods=["GET"])
+def presencia(numero_habitacion, letra_cama):
+    try:
+        db = next(get_db())
+        DataControlService.send_led_off(db, numero_habitacion, letra_cama)
+        DataControlService.save_presencias(db, numero_habitacion, letra_cama)
+
+        DataControlService.marcar_llamada_en_cogida(db, numero_habitacion, letra_cama)
+        return jsonify({"status": "ok"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 @app.route("/ultimas_asistencias", methods=["GET"])
 def ultimas_asistencias():
@@ -95,7 +149,7 @@ def ultimas_asistencias():
 
 @app.route("/admin", methods=["GET"])
 def admin_web():
-    return render_template('index.html')
+    return render_template('index.html', ip=ConfigService.cargar_configuracion()["ip_server"], puerto=ConfigService.cargar_configuracion()["puerto_server"])
 
 @app.route("/admin/gestion_usuarios", methods=["GET", "POST"])
 def gestion_usuarios():
@@ -111,10 +165,28 @@ def gestion_usuarios():
 
     # GET: Mostrar enfermeros
     usuarios = DataControlService.all_enfermeros(db)
-    return render_template('gestion_usuarios.html', usuarios=usuarios)
+    return render_template('gestion_usuarios.html', usuarios=usuarios, ip=ConfigService.cargar_configuracion()["ip_server"], puerto=ConfigService.cargar_configuracion()["puerto_server"])
 
 
-@app.route("/admin/gestion_usuarios/eliminar/<int:id_enfermero>", methods=["POST"])
+@app.route("/admin/gestion_usuarios/eliminar/<string:id_enfermero>", methods=["GET"])
 def eliminar_enfermero(id_enfermero):
     db = next(get_db())
-    return redirect(url_for("gestion_usuarios"))
+    print(f" === {id_enfermero}")
+    DataControlService.delete_enfermeros(db=db, id=id_enfermero)
+    return jsonify({"status" : "deleted ok!"}), 200
+    # return render_template('gestion_usuarios.html', id_enfermero = id_enfermero), 200
+
+@app.route("/gestion/ip/ultima", methods=["GET"])
+def ultima():
+    db = next(get_db())
+    return jsonify(IPControlService.obtener_ultima_ip(db=db)), 200
+
+@app.route("/gestion/ip/siguiente", methods=["GET"])
+def siguiente():
+    db = next(get_db())
+    return jsonify(IPControlService.siguiente_ip(db=db)), 200
+
+@app.route("/gestion/ip/asignar", methods=["GET"])
+def asignar():
+    db = next(get_db())
+    return jsonify(IPControlService.asignar_ip(db=db)), 200

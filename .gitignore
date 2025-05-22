@@ -1,2 +1,6 @@
 .env
 docker/*
+__pycache__
+*.pyc
+.idea/
+cookies.json

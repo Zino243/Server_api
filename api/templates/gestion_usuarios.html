@@ -2,6 +2,58 @@
 <html>
 <head>
     <title>Gestión de Enfermeros</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f9f9f9;
+            color: #222;
+            margin: 40px;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+        th, td {
+            padding: 10px 16px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+        th {
+            background: #f4f6f8;
+        }
+        tr:hover {
+            background: #f1f7fa;
+        }
+        form {
+            margin: 0;
+        }
+        input, button {
+            padding: 8px 12px;
+            margin: 4px 2px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        button {
+            background: #3498db;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #217dbb;
+        }
+        ul {
+            padding-left: 20px;
+            color: #e74c3c;
+        }
+    </style>
 </head>
 <body>
     <h1>Lista de enfermeros</h1>
@@ -28,7 +80,8 @@
                 <td>{{ enfermero.apellido }}</td>
                 <td>{{ enfermero.codigo }}</td>
                 <td>
-                    <form action="{{ url_for('eliminar_enfermero', id_enfermero=enfermero.id) }}" method="post" style="display:inline;">
+                    <form action="http://{{ ip }}:{{ puerto }}/admin/gestion_usuarios/eliminar/{{ enfermero.id }}" method="post" style="display:inline;">
+                    <form action="http:///admin/gestion_usuarios/eliminar/{{ enfermero.id }}" method="post" style="display:inline;">
                         <button type="submit" onclick="return confirm('¿Eliminar enfermero?');">Eliminar</button>
                     </form>
                 </td>
