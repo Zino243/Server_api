@@ -3,7 +3,7 @@
 from sqlalchemy.orm import Session
 from . import Models
 from .Models import Camas, Habitaciones, Cookies, Asistencias
-
+from datetime import datetime, timedelta
 
 def create_enfermeros(nombre: str, apellido: str, codigo: str, contrasena: str, fecha_de_alta, fecha_de_baja,
                       db: Session):
@@ -62,6 +62,13 @@ def all_enfermeros(db: Session):
     query_enfermeros = db.query(Models.Enfermeros).all()
     return query_enfermeros
 
+def enfermero_by_id(db: Session, id: int):
+    """devuelve un enfermero por su id"""
+    query_enfermeros = db.query(Models.Enfermeros).filter(Models.Enfermeros.id == id).first()
+    if query_enfermeros:
+        return query_enfermeros.nombre
+    else:
+        return False
 
 def delete_enfermeros(db: Session, id: str):
     # Buscar al enfermero por su id
@@ -192,13 +199,21 @@ def create_llamadas_temporales(db, numero_habitacion, letra_cama):
     db.refresh(llamada_temporal)
     return llamada_temporal.llamada_id
 
+
 def last_llamadas_temporales(db: Session):
     return (
         db.query(Models.LlamadasTemporales)
-        .order_by(Models.LlamadasTemporales.hora.desc())
-        .limit(24)
+        .order_by(Models.LlamadasTemporales.hora)
         .all()
     )
+def llamada_enfermero(db: Session, llamada_id: int, enfermero_id):
+    llamada = db.query(Models.LlamadasTemporales).filter(Models.LlamadasTemporales.llamada_id == llamada_id).first()
+    if llamada:
+        llamada.enfermero_id = enfermero_id
+        db.commit()
+        return True
+    else:
+        return False
 
 def ultima_ip_asignada(db:Session):
     query_camas = db.query(Camas).order_by(Camas.id.desc()).first()

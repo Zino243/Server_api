@@ -11,7 +11,30 @@
     </style>
 </head>
 <body>
+
     <h1><a href="http://{{ ip }}:{{ puerto }}/admin/gestion_usuarios">Gestion de usuarios</a></h1>
+    <button id="descargar-csv">Descargar CSV</button>
+
+    <script>
+    document.getElementById('descargar-csv').addEventListener('click', function() {
+        const filas = document.querySelectorAll('#llamadas-table tr');
+        let csv = [];
+        filas.forEach(fila => {
+            let cols = Array.from(fila.querySelectorAll('th, td')).map(col => `"${col.innerText}"`);
+            csv.push(cols.join(','));
+        });
+        let csvContent = csv.join('\n');
+        let blob = new Blob([csvContent], { type: 'text/csv' });
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = 'llamadas_temporales.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
+    </script>
     <h1>Llamadas Temporales</h1>
     <table id="llamadas-table">
         <thead>
@@ -21,6 +44,7 @@
                 <th>Cama</th>
                 <th>Hora</th>
                 <th>Estado</th>
+                <th>Enfermero</th>
             </tr>
         </thead>
         <tbody>
@@ -40,6 +64,7 @@
                         <td>${llamada.cama_id}</td>
                         <td>${llamada.hora}</td>
                         <td>${llamada.estado}</td>
+                        <td>${llamada.enfermero}</td>
                     `;
                     tbody.appendChild(row);
                 });
