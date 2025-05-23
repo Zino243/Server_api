@@ -1,5 +1,5 @@
 import requests
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, url_for, flash
 from flask import jsonify, request, make_response,  render_template
 from flask_cors import CORS
 import uuid
@@ -115,6 +115,10 @@ def atender_asistencia(numero_habitacion, letra_cama, id_llamada):
         response.raise_for_status()
 
         cookies_local = CookiesService.leer_cookies()
+
+        # modificar llamada para el enfermero
+        DataControlService.llamada_enfermero(db=db, id_llamada=id_llamada, enfermero_codigo = cookies_local[session_id])
+
         #
         DataControlService.send_led_on(db, numero_habitacion, letra_cama)
         try:
@@ -162,18 +166,25 @@ def gestion_usuarios():
             "codigo": request.form.get("codigo"),
             "contrasena": request.form.get("contrasena")
         })
+        flash("Enfermeros creado correctamente", "success")
+
 
     # GET: Mostrar enfermeros
     usuarios = DataControlService.all_enfermeros(db)
     return render_template('gestion_usuarios.html', usuarios=usuarios, ip=ConfigService.cargar_configuracion()["ip_server"], puerto=ConfigService.cargar_configuracion()["puerto_server"])
 
 
-@app.route("/admin/gestion_usuarios/eliminar/<string:id_enfermero>", methods=["GET"])
+@app.route("/admin/gestion_usuarios/eliminar/<string:id_enfermero>", methods=["GET", "POST"])
 def eliminar_enfermero(id_enfermero):
-    db = next(get_db())
-    print(f" === {id_enfermero}")
-    DataControlService.delete_enfermeros(db=db, id=id_enfermero)
-    return jsonify({"status" : "deleted ok!"}), 200
+    try:
+        db = next(get_db())
+        DataControlService.delete_enfermeros(db=db, id=id_enfermero)
+        flash("Enfermero eliminado correctamente", "success")
+        usuarios = DataControlService.all_enfermeros(db)
+        return render_template('gestion_usuarios.html', usuarios=usuarios, ip=ConfigService.cargar_configuracion()["ip_server"], puerto=ConfigService.cargar_configuracion()["puerto_server"])
+    except Exception as e:
+        flash(f"Error al eliminar enfermero: {e}", "error")
+        return redirect(url_for("gestion_usuarios"))
     # return render_template('gestion_usuarios.html', id_enfermero = id_enfermero), 200
 
 @app.route("/gestion/ip/ultima", methods=["GET"])

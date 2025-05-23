@@ -49,17 +49,10 @@ camas = []
 letras = ['A', 'B', 'C']
 for hab in habitaciones:
     for letra in letras:
-        # Generamos una IP aleatoria en el rango de clase B
         ip = f"172.16.{random.randint(0, 255)}.{random.randint(0, 255)}"
-
-        # Creamos la cama y le asignamos la IP
         cama = Camas(letra=letra, habitacion_id=hab.id, ip=ip)
-
-        # Añadimos la cama a la sesión y a la lista de camas
         session.add(cama)
         camas.append(cama)
-
-# Confirmamos los cambios en la base de datos
 session.commit()
 
 # -----------------------------
@@ -88,12 +81,11 @@ session.commit()
 
 # -----------------------------
 # 5. Crear Asistencias (mínimo 7)
-# Nota: En el modelo, 'fecha' es de tipo Time, por lo que generamos una hora aleatoria.
 # -----------------------------
 for _ in range(7):
     asistencia = Asistencias(
-        fecha=random_time(),       # Valor de tiempo (por ejemplo, '14:30:15')
-        hora=random_time(),        # Valor de hora adicional
+        fecha=random_time(),
+        hora=random_time(),
         habitacion_id=random.choice(habitaciones).id,
         cama_id=random.choice(camas).id,
         enfermeros_id=random.choice(enfermeros).id
@@ -103,15 +95,13 @@ session.commit()
 
 # -----------------------------
 # 6. Crear Presencias (mínimo 7)
-# Aquí 'fecha' es de tipo Date y se generan horas para las llamadas y presencia.
 # -----------------------------
 for _ in range(7):
     hora_llamada = random_time()
-    delta = random.randint(1, 5)
     dt_llamada = datetime.combine(datetime.today(), hora_llamada)
-    dt_presencia = dt_llamada + timedelta(minutes=delta)
+    dt_presencia = dt_llamada + timedelta(minutes=random.randint(1, 5))
     presencia = Presencias(
-        fecha=faker.date_object(),  # Un objeto date válido
+        fecha=faker.date_object(),
         hora_llamada=hora_llamada,
         hora_presencia=dt_presencia.time(),
         habitacion_id=random.choice(habitaciones).id,
@@ -135,12 +125,15 @@ session.commit()
 
 # -----------------------------
 # 8. Crear LlamadasTemporales (mínimo 7)
+# Con el nuevo campo enfermero_id que puede ser NULL
 # -----------------------------
 for _ in range(7):
     lt = LlamadasTemporales(
         habitacion_id=random.choice(habitaciones).id,
         cama_id=random.choice(camas).id,
-        hora=random_time()
+        enfermero_id=random.choice(enfermeros).id if random.random() < 0.7 else None,  # 70% de tener enfermero asignado
+        hora=random_time(),
+        estado=random.choice(['pendiente', 'atendida'])  # Opcional: variamos el estado
     )
     session.add(lt)
 session.commit()

@@ -70,7 +70,8 @@ def last_llamadas_temporales(db: Session):
             "habitacion_id": Crud.habitacion_num(db, l.habitacion_id),
             "cama_id": Crud.cama_letra(db, l.cama_id),
             "hora": l.hora.strftime('%H:%M:%S'),
-            "estado": l.estado
+            "estado": l.estado,
+            "enfermero" : Crud.enfermero_by_id(db, l.enfermero_id) if l.enfermero_id else "no asignado",
         }
         for l in llamadas
     ]
@@ -123,3 +124,11 @@ def marcar_llamada_en_cogida(db:Session, numero_habitacion, letra_cama):
         Crud.marcar_llamada_cogida(db=db, numero_habitacion=numero_habitacion, letra_cama=letra_cama)
     except Exception as e:
         print(f"Error al marcar llamada en espera: {e}")
+
+def llamada_enfermero(db:Session, id_llamada, enfermero_codigo):
+    """devuelve todas las llamadas de un enfermero"""
+    try:
+        llamadas = Crud.llamada_enfermero(db, id_llamada, Crud.enfermero_ID_by_code(db, enfermero_codigo))
+        return llamadas
+    except Exception as e:
+        print(f"Error al obtener llamadas del enfermero: {e}")

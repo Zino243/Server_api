@@ -90,15 +90,18 @@ class Cookies(Base):
 
     enfermero = relationship("Enfermeros", back_populates="cookies")
 
-
 class LlamadasTemporales(Base):
     __tablename__ = 'llamadas_temporales'
 
     llamada_id = Column(Integer, autoincrement=True, primary_key=True, index=True)
     habitacion_id = Column(ForeignKey('habitaciones.id'), index=True)
     cama_id = Column(ForeignKey('camas.id'), index=True)
+    enfermero_id = Column(ForeignKey('enfermeros.id'), nullable=True, index=True)  # Nuevo campo
+
     hora = Column(Time, default=datetime.now().time)
-    estado = Column(String(20), default='pendiente')  # Nueva columna 'estado'
+    estado = Column(String(20), default='pendiente')
 
     habitacion = relationship("Habitaciones")
     cama = relationship("Camas")
+    enfermero = relationship("Enfermeros")
+
